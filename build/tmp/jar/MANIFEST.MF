@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Specification-Title: coretuner
+Specification-Vendor: Nelson Pineda
+Specification-Version: 1
+Implementation-Title: CoreTuner
+Implementation-Version: 1.0.0
+Implementation-Vendor: Nelson Pineda
+

@@ -1,0 +1,121 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+}
+
+version = '1.0.0'
+group = 'org.mod.coretuner'
+
+base {
+    archivesName = 'coretuner'
+}
+
+// Mojang ships Java 21 to end users in 1.20.5+, so your mod should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+
+minecraft {
+    mappings channel: 'official', version: '1.21.1' // Usamos mapeos oficiales de la versión
+
+    reobf = false
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        client {
+            // 2. CAMBIADO: Reemplazado mod_id por 'coretuner'
+            property 'forge.enabledGameTestNamespaces', 'coretuner'
+        }
+
+        server {
+            // 3. CAMBIADO: Reemplazado mod_id por 'coretuner'
+            property 'forge.enabledGameTestNamespaces', 'coretuner'
+            args '--nogui'
+        }
+
+        gameTestServer {
+            // 4. CAMBIADO: Reemplazado mod_id por 'coretuner'
+            property 'forge.enabledGameTestNamespaces', 'coretuner'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            // 5. CAMBIADO: Reemplazado mod_id por 'coretuner'
+            args '--mod', 'coretuner', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    // Aquí pondremos repositorios de dependencias más adelante
+}
+
+dependencies {
+    // 6. CAMBIADO: Fijamos la versión de Minecraft y Forge directamente
+    minecraft "net.minecraftforge:forge:1.21.1-52.1.10"
+}
+
+// 7. CAMBIADO: Simplificamos el proceso de recursos ya que definimos los valores en mods.toml directamente
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            mod_id: 'coretuner', mod_name: 'CoreTuner', mod_version: '1.0.0',
+            mod_authors: 'Nelson Pineda'
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : 'coretuner',
+                'Specification-Vendor'    : 'Nelson Pineda',
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : 'Nelson Pineda'
+        ])
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea.module { downloadJavadoc = downloadSources = true }
+
+eclipse {
+    synchronizationTasks 'genEclipseRuns'
+}
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}

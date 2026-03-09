@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[52,)"
+license="All Rights Reserved"
+issueTrackerURL="https://github.com/NelsonPineda007/CoreTuner/issues"
+
+[[mods]]
+modId="coretuner"
+version="1.0.0"
+displayName="CoreTuner"
+displayURL="https://github.com/NelsonPineda007/CoreTuner"
+logoFile="logo.png"
+authors="Nelton"
+mixins="coretuner.mixins.json"
+description='''
+Mod de optimización a nivel de servidor y herramientas de profiling.
+Incluye Lazy Chunk Ticking, optimización de IAs y dashboard de rendimiento.
+'''
+
+[[dependencies.coretuner]]
+modId="forge"
+mandatory=true
+versionRange="[52.1.10,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.coretuner]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.21.1,1.22)"
+ordering="NONE"
+side="BOTH"

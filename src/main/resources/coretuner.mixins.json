@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.mod.coretuner.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "coretuner.refmap.json",
+  "mixins": [
+    "HopperOptimizerMixin",
+    "HopperAccessor"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
