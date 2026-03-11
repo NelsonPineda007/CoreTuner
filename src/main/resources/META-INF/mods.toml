@@ -3,6 +3,9 @@ loaderVersion="[52,)"
 license="All Rights Reserved"
 issueTrackerURL="https://github.com/NelsonPineda007/CoreTuner/issues"
 
+[[mixins]]
+config="coretuner.mixins.json"
+
 [[mods]]
 modId="coretuner"
 version="${mod_version}"
@@ -10,7 +13,6 @@ displayName="CoreTuner"
 displayURL="https://github.com/NelsonPineda007/CoreTuner"
 logoFile="logo.png"
 authors="Nelton"
-mixins="coretuner.mixins.json"
 description='''
 Mod de optimización a nivel de servidor y herramientas de profiling.
 Incluye Lazy Chunk Ticking, optimización de IAs y dashboard de rendimiento.

@@ -15,21 +15,15 @@ public class CoreTuner {
     public static final String MODID = "coretuner";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    // Sintaxis 100% correcta para Forge 1.21.1
     public CoreTuner(FMLJavaModLoadingContext context) {
 
-        // Extraemos el bus directamente del contexto que nos pasa Forge
-        IEventBus modEventBus = context.getModEventBus();
+        // Registrar mixin config programáticamente — garantiza que Mixin
 
-        // Registramos el método commonSetup
+        IEventBus modEventBus = context.getModEventBus();
         context.registerConfig(net.minecraftforge.fml.config.ModConfig.Type.SERVER, Config.SPEC);
         modEventBus.addListener(this::commonSetup);
-
-        // Nos registramos para eventos de Forge
         MinecraftForge.EVENT_BUS.register(this);
     }
-
-
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("INICIALIZANDO CORETUNER - Preparando optimizaciones...");
@@ -37,6 +31,13 @@ public class CoreTuner {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("CoreTuner: Servidor arrancando. Inyectando código...");
+        LOGGER.info("CoreTuner: Servidor arrancando. Iniciando API del Dashboard...");
+        org.mod.coretuner.profiler.DashboardServer.start();
+    }
+
+    @SubscribeEvent
+    public void onServerStopping(net.minecraftforge.event.server.ServerStoppingEvent event) {
+        LOGGER.info("CoreTuner: Servidor deteniéndose. Apagando API...");
+        org.mod.coretuner.profiler.DashboardServer.stop();
     }
 }

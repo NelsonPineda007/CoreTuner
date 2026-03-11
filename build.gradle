@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+' // <--- 1. ESTO ES VITAL
 }
 
 version = '1.0.0'
@@ -12,14 +13,12 @@ base {
     archivesName = 'coretuner'
 }
 
-// Mojang ships Java 21 to end users in 1.20.5+, so your mod should target Java 21.
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 minecraft {
-    mappings channel: 'official', version: '1.21.1' // Usamos mapeos oficiales de la versión
-
+    mappings channel: 'official', version: '1.21.1'
     reobf = false
     copyIdeResources = true
 
@@ -29,26 +28,20 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
         }
-
         client {
-            // 2. CAMBIADO: Reemplazado mod_id por 'coretuner'
             property 'forge.enabledGameTestNamespaces', 'coretuner'
+            arg "-mixin.config=coretuner.mixins.json"
         }
-
         server {
-            // 3. CAMBIADO: Reemplazado mod_id por 'coretuner'
             property 'forge.enabledGameTestNamespaces', 'coretuner'
             args '--nogui'
+            arg "-mixin.config=coretuner.mixins.json"
         }
-
         gameTestServer {
-            // 4. CAMBIADO: Reemplazado mod_id por 'coretuner'
             property 'forge.enabledGameTestNamespaces', 'coretuner'
         }
-
         data {
             workingDirectory project.file('run-data')
-            // 5. CAMBIADO: Reemplazado mod_id por 'coretuner'
             args '--mod', 'coretuner', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
@@ -56,23 +49,23 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-repositories {
-    // Aquí pondremos repositorios de dependencias más adelante
+mixin {
+    add sourceSets.main, "coretuner.refmap.json"
+    config "coretuner.mixins.json"
 }
 
 dependencies {
-    // 6. CAMBIADO: Fijamos la versión de Minecraft y Forge directamente
     minecraft "net.minecraftforge:forge:1.21.1-52.1.10"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' // <--- 3. VITAL
+    compileOnly 'org.spongepowered:mixin:0.8.5'
 }
 
-// 7. CAMBIADO: Simplificamos el proceso de recursos ya que definimos los valores en mods.toml directamente
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
             mod_id: 'coretuner', mod_name: 'CoreTuner', mod_version: '1.0.0',
             mod_authors: 'Nelson Pineda'
     ]
     inputs.properties replaceProperties
-
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
@@ -81,12 +74,13 @@ tasks.named('processResources', ProcessResources).configure {
 tasks.named('jar', Jar).configure {
     manifest {
         attributes([
-                'Specification-Title'     : 'coretuner',
-                'Specification-Vendor'    : 'Nelson Pineda',
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : 'Nelson Pineda'
+                'Specification-Title'    : 'coretuner',
+                'Specification-Vendor'   : 'Nelson Pineda',
+                'Specification-Version'  : '1',
+                'Implementation-Title'   : project.name,
+                'Implementation-Version' : project.jar.archiveVersion,
+                'Implementation-Vendor'  : 'Nelson Pineda',
+                'MixinConfigs'           : 'coretuner.mixins.json' // <--- 4. VITAL
         ])
     }
 }
